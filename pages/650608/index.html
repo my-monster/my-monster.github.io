@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>训练时的学习率调整：optimizer和scheduler - 知乎 | Liuyuan&#39;s blog</title>
+    <meta name="generator" content="VuePress 1.9.5">
+    <link rel="icon" href="/img/favicon.ico">
+    <meta name="description" content="个人博客。">
+    <meta name="keywords" content="个人博客。">
+    <meta name="baidu-site-verification" content="7F55weZDDc">
+    <meta name="theme-color" content="#11a8cd">
+    
+    <link rel="preload" href="/assets/css/0.styles.6b291d34.css" as="style"><link rel="preload" href="/assets/js/app.50fadf31.js" as="script"><link rel="preload" href="/assets/js/2.47a03fa1.js" as="script"><link rel="preload" href="/assets/js/3.436c0527.js" as="script"><link rel="preload" href="/assets/js/12.8e6e4c4b.js" as="script"><link rel="prefetch" href="/assets/js/10.a34e71ca.js"><link rel="prefetch" href="/assets/js/11.97b02391.js"><link rel="prefetch" href="/assets/js/13.00db5453.js"><link rel="prefetch" href="/assets/js/14.e91dd435.js"><link rel="prefetch" href="/assets/js/15.6018daa8.js"><link rel="prefetch" href="/assets/js/16.d7372590.js"><link rel="prefetch" href="/assets/js/17.d89a4381.js"><link rel="prefetch" href="/assets/js/18.ea92a9c3.js"><link rel="prefetch" href="/assets/js/19.825ba7c0.js"><link rel="prefetch" href="/assets/js/20.8330b139.js"><link rel="prefetch" href="/assets/js/21.e65d87fa.js"><link rel="prefetch" href="/assets/js/22.84ef7201.js"><link rel="prefetch" href="/assets/js/23.c4c00f09.js"><link rel="prefetch" href="/assets/js/24.1474c794.js"><link rel="prefetch" href="/assets/js/25.607370fa.js"><link rel="prefetch" href="/assets/js/26.85790132.js"><link rel="prefetch" href="/assets/js/27.251cd882.js"><link rel="prefetch" href="/assets/js/28.87d9bae7.js"><link rel="prefetch" href="/assets/js/29.59230516.js"><link rel="prefetch" href="/assets/js/30.515bed4d.js"><link rel="prefetch" href="/assets/js/31.6eac8e06.js"><link rel="prefetch" href="/assets/js/32.e79b26fb.js"><link rel="prefetch" href="/assets/js/33.eee2be0d.js"><link rel="prefetch" href="/assets/js/34.22836300.js"><link rel="prefetch" href="/assets/js/35.1bb64409.js"><link rel="prefetch" href="/assets/js/36.7fb27be9.js"><link rel="prefetch" href="/assets/js/37.54e1ee25.js"><link rel="prefetch" href="/assets/js/38.e1fd2084.js"><link rel="prefetch" href="/assets/js/39.aa56611a.js"><link rel="prefetch" href="/assets/js/4.54ba375b.js"><link rel="prefetch" href="/assets/js/40.ae81606b.js"><link rel="prefetch" href="/assets/js/41.0b9b9a66.js"><link rel="prefetch" href="/assets/js/42.1ac387fb.js"><link rel="prefetch" href="/assets/js/43.5ce9c58b.js"><link rel="prefetch" href="/assets/js/44.750f46f0.js"><link rel="prefetch" href="/assets/js/45.d92dc275.js"><link rel="prefetch" href="/assets/js/46.22138ea3.js"><link rel="prefetch" href="/assets/js/47.c5cd0fb4.js"><link rel="prefetch" href="/assets/js/48.a6b8db9f.js"><link rel="prefetch" href="/assets/js/49.5be7f37d.js"><link rel="prefetch" href="/assets/js/5.7e641334.js"><link rel="prefetch" href="/assets/js/50.3bbc1ed4.js"><link rel="prefetch" href="/assets/js/51.69439a8b.js"><link rel="prefetch" href="/assets/js/52.6765e0d8.js"><link rel="prefetch" href="/assets/js/53.b7f818bd.js"><link rel="prefetch" href="/assets/js/54.fa6416de.js"><link rel="prefetch" href="/assets/js/55.14d3b063.js"><link rel="prefetch" href="/assets/js/56.8db2a655.js"><link rel="prefetch" href="/assets/js/57.2c520b79.js"><link rel="prefetch" href="/assets/js/58.926c69a8.js"><link rel="prefetch" href="/assets/js/59.303cfc72.js"><link rel="prefetch" href="/assets/js/6.40ea68d2.js"><link rel="prefetch" href="/assets/js/7.86d54bc0.js"><link rel="prefetch" href="/assets/js/8.fe46a857.js"><link rel="prefetch" href="/assets/js/9.dc879685.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.6b291d34.css">
+  </head>
+  <body class="theme-mode-light">
+    <div id="app" data-server-rendered="true"><div class="theme-container sidebar-open have-rightmenu"><header class="navbar blur"><div title="目录" class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/img/logo.png" alt="Liuyuan's blog" class="logo"> <span class="site-name can-hide">Liuyuan's blog</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">首页</a></div><div class="nav-item"><a href="/research/" class="nav-link">学术搬砖</a></div><div class="nav-item"><a href="/notes/" class="nav-link">学习笔记</a></div><div class="nav-item"><a href="/life/" class="nav-link">生活杂谈</a></div><div class="nav-item"><a href="/blog/" class="nav-link">blog搬运</a></div><div class="nav-item"><a href="/about/" class="nav-link">关于</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="索引" class="dropdown-title"><a href="/archives/" class="link-title">索引</a> <span class="title" style="display:none;">索引</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/categories/" class="nav-link">分类</a></li><li class="dropdown-item"><!----> <a href="/tags/" class="nav-link">标签</a></li><li class="dropdown-item"><!----> <a href="/archives/" class="nav-link">归档</a></li></ul></div></div> <a href="https://github.com/my-monster/blog" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar-hover-trigger"></div> <aside class="sidebar" style="display:none;"><div class="blogger"><img src="/img/myself.jpg"> <div class="blogger-info"><h3>Liu Yuan</h3> <span>热爱生活！</span></div></div> <nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">首页</a></div><div class="nav-item"><a href="/research/" class="nav-link">学术搬砖</a></div><div class="nav-item"><a href="/notes/" class="nav-link">学习笔记</a></div><div class="nav-item"><a href="/life/" class="nav-link">生活杂谈</a></div><div class="nav-item"><a href="/blog/" class="nav-link">blog搬运</a></div><div class="nav-item"><a href="/about/" class="nav-link">关于</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="索引" class="dropdown-title"><a href="/archives/" class="link-title">索引</a> <span class="title" style="display:none;">索引</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/categories/" class="nav-link">分类</a></li><li class="dropdown-item"><!----> <a href="/tags/" class="nav-link">标签</a></li><li class="dropdown-item"><!----> <a href="/archives/" class="nav-link">归档</a></li></ul></div></div> <a href="https://github.com/my-monster/blog" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>降噪</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>pytorch学习</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/pages/650608/" aria-current="page" class="active sidebar-link">训练时的学习率调整：optimizer和scheduler - 知乎</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level2"><a href="/pages/650608/#_1-optimizer-step-和scheduler-step-的区别" class="sidebar-link">1.optimizer.step()和scheduler.step()的区别</a></li><li class="sidebar-sub-header level2"><a href="/pages/650608/#_2-1optimizer的种类" class="sidebar-link">2.1optimizer的种类</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/650608/#_2-1-optim-sgd" class="sidebar-link">2.1 optim.SGD</a></li><li class="sidebar-sub-header level3"><a href="/pages/650608/#_2-2-optim-adam" class="sidebar-link">2.2 optim.Adam</a></li><li class="sidebar-sub-header level3"><a href="/pages/650608/#_3-1torch-optim-lr-scheduler-lambdalr" class="sidebar-link">3.1torch.optim.lr_scheduler.LambdaLR</a></li><li class="sidebar-sub-header level3"><a href="/pages/650608/#_3-2-torch-optim-lr-scheduler-steplr" class="sidebar-link">3.2 torch.optim.lr_scheduler.StepLR</a></li><li class="sidebar-sub-header level3"><a href="/pages/650608/#_3-3-torch-optim-lr-scheduler-multisteplr" class="sidebar-link">3.3 torch.optim.lr_scheduler.MultiStepLR</a></li><li class="sidebar-sub-header level3"><a href="/pages/650608/#_3-4-torch-optim-lr-scheduler-exponentiallr" class="sidebar-link">3.4 torch.optim.lr_scheduler.ExponentialLR</a></li></ul></li></ul></li><li><a href="/pages/6d6261/" class="sidebar-link">torch.optim.lr_scheduler.MultiStepLR()用法研究 台阶_阶梯学习率</a></li><li><a href="/pages/9b5eec/" class="sidebar-link">torch.nn.Flatten()的参数实例</a></li><li><a href="/pages/bb0c5d/" class="sidebar-link">torch.matmul()函数用法总结</a></li><li><a href="/pages/c099f4/" class="sidebar-link">【转载】PyTorch 图像模型入门 (timm)：从业者指南</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>预训练模型处理</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>学习笔记</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <div><main class="page"><div class="theme-vdoing-wrapper "><div class="articleInfo-wrap" data-v-5add8e0a><div class="articleInfo" data-v-5add8e0a><ul class="breadcrumbs" data-v-5add8e0a><li data-v-5add8e0a><a href="/" title="首页" class="iconfont icon-home router-link-active" data-v-5add8e0a></a></li> <li data-v-5add8e0a><a href="/research/#学术搬砖" data-v-5add8e0a>学术搬砖</a></li><li data-v-5add8e0a><a href="/research/#pytorch学习" data-v-5add8e0a>pytorch学习</a></li></ul> <div class="info" data-v-5add8e0a><div title="作者" class="author iconfont icon-touxiang" data-v-5add8e0a><a href="https://github.com/my-monster" target="_blank" title="作者" class="beLink" data-v-5add8e0a>liuyuan</a></div> <div title="创建时间" class="date iconfont icon-riqi" data-v-5add8e0a><a href="javascript:;" data-v-5add8e0a>2023-03-13</a></div> <!----></div></div></div> <!----> <div class="content-wrapper"><div class="right-menu-wrapper"><div class="right-menu-margin"><div class="right-menu-title">目录</div> <div class="right-menu-content"></div></div></div> <h1><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAABGpJREFUSA3tVVtoXFUU3fvOI53UlmCaKIFmwEhsE7QK0ipFEdHEKpXaZGrp15SINsXUWvBDpBgQRKi0+KKoFeJHfZA+ED9KKoIU2gYD9UejTW4rVIzm0VSTziPzuNu1z507dibTTjL4U/DAzLn3nL3X2o91ziX6f9wMFdh6Jvbm9nNSV0msViVO6tN1Rm7NMu2OpeJ9lWBUTDxrJbYTS0hInuwciu9eLHlFxCLCZEk3MegsJmZ5K/JD6t7FkFdEvGUo1g7qJoG3MHImqRIn8/nzY1K9UPKKiJmtnUqHVE3Gbuay6vJE/N2FEmuxFjW2nUuE0yQXRRxLiTUAzs36zhZvOXJPdX850EVnnLZkB8prodQoM5JGj7Xk2mvC7JB8tG04Ef5PiXtG0UtxupRQSfTnBoCy554x18yJHI6I+G5Eru4LHmPJZEQsrvPUbMiA8G/WgMK7w7I+ez7++o2ANfbrjvaOl1tFMs+htG3IrZH9/hDX1Pr8Tc0UvH8tcX29KzAgIGcEkINyW5BF9x891hw6VYqgJHEk0huccS7vh3C6gTiODL+26huuBtbct8eZnqLML8PkxGYpuPZBqtqwkSjgc4mB5gbgig5i+y0UDK35LMxXisn9xQtK+nd26gTIHsHe/oblK/b29fUmN/8Y+9jAQrnBp56m1LcDlDp9irKTExSKduXJVWSqdBMA08pEJnEIOB3FPPMybu/oeV8zFeYN3xx576Q6RH+VmplE4ncQV5v+5rzSoyOU7PuEAg8g803PwBJ0CExno/jcMbN8tONYeOmHiuUNryvm3fRUy4tMPVLdAGkUhNWuggGrJcXPv+ouCjz0MKUHz1J2/E8IC9nqTabcxgaBYM0hPhD5Y65FsbxRQKxCQrDjDctW7PUM3HuZunFyifSAqEfuzCp48Il24luWUWZoyJCaPR82jE0+kFA643wRFVni4RYSq3ohJO2pZ7B5dO4xkDWbEpossJPLSrPjYID8rS2UHTlvyNxqIGsg674XJJ7vnh5L7PNwC4hh2sjCI96mzszOTpxLF0T7l88Yz7lAuK6OnL8gXLOnTvpzSb22YG8W7us3jSebFHeeqnXRG1vt+MoUM84LQIBmMsCTAcOauTh0T0l0neQK7m2bLMt2mGxU3HYssS0J2cdv5wljlPsrIuZLAG/2DOZIXgCYT8uMGZN+e2kSirfxZOPCsC0f24nTZzspnVn9VePS1Z5vubmAGGXG8ZFno9Hel0yfA5ZPhF7Dh972BQJ2qCpgH67lmWtBYbvk6sz02wjky2vXyz0XErP/kFB619js1BtwfOV4OPRqOQBjy3Qbk18vigUPPSD5ceHnwck7W9bhAqZdd7SuG7w4/P2F/GaJh8c7e9qgow+Q7cGBo+98WsLkuktFqiZabtXuQTu/Y5ETbR0v7tNSFnvrmu6pjdoan2KjMu8q/Hmj1EfCO2ZGfEIbIXKUlw8qaX9/b2oeSJmFksSeT/Fn0V3nSypChh4Gjh74ybO9aeZ/AN2dwciu2/MhAAAAAElFTkSuQmCC">训练时的学习率调整：optimizer和scheduler - 知乎<!----></h1>  <div class="theme-vdoing-content content__default"><p><img src="https://img-blog.csdnimg.cn/img_convert/b9aa14271d734c1ac17022265360ae91.jpeg#pic_center" alt="https://pica.zhimg.com/v2-a702c81aaaa2f6c7c417cb94f87f496f_1440w.jpg?source=172ae18b"></p> <p>最近在用mmdection框架修改网络的时候发现，网络训练起来一直都不收敛，训练一小会就换全部变nan，检测了好久都没有发现什么问题，最终修改了学习率，终于可以收敛了。但是关于怎么调整学习率一直都还没有掌握。因此特意写了这一篇进行总结。</p> <h2 id="_1-optimizer-step-和scheduler-step-的区别"><a href="#_1-optimizer-step-和scheduler-step-的区别" class="header-anchor">#</a> <strong>1.optimizer.step()和scheduler.step()的区别</strong></h2> <p>optimizer.step()和scheduler.step()是我们在训练网络之前都需要设置。我理解的是optimizer是指定<strong>使用哪个优化器</strong>，scheduler是<strong>对优化器的学习率进行调整</strong>，正常情况下训练的步骤越大，学习率应该变得越小。optimizer.step()通常用在每个mini-batch之中，而scheduler.step()通常用在epoch里面,但是不绝对。可以根据具体的需求来做。只有用了optimizer.step()，模型才会更新，而scheduler.step()是对lr进行调整。通常我们在scheduler的step_size表示scheduler.step()每调用step_size次，对应的学习率就会按照策略调整一次。所以如果scheduler.step()是放在mini-batch里面，那么step_size指的是经过这么多次迭代，学习率改变一次。下面为一个简单的使用实例：</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>optimizer = optim.SGD(model.parameters(), lr = 0.01, momentum = 0.9)
+scheduler = lr_scheduler.StepLR(optimizer, step_size = 100, gamma = 0.1)
+model = net.train(model, loss_function, optimizer, scheduler, num_epochs = 100)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h2 id="_2-1optimizer的种类"><a href="#_2-1optimizer的种类" class="header-anchor">#</a> 2.1optimizer的种类</h2> <h3 id="_2-1-optim-sgd"><a href="#_2-1-optim-sgd" class="header-anchor">#</a> 2.1 optim.SGD</h3> <h3 id="_2-2-optim-adam"><a href="#_2-2-optim-adam" class="header-anchor">#</a> 2.2 optim.Adam</h3> <p>pytorch有torch.optim.lr_scheduler模块提供了一些根据epoch训练次数来调整学习率（learning rate）的方法。一般情况下我们会设置随着epoch的增大而逐渐减小学习率从而达到更好的训练效果。学习率的调整应该放在optimizer更新之后，下面是一个参考伪代码：</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>scheduler = ...
+for epoch in range(100):
+     train(...)
+     validate(...)
+     scheduler.step()
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>本文介绍的调整学习率的函数都是基于epoch大小变化进行调整的。</p> <h3 id="_3-1torch-optim-lr-scheduler-lambdalr"><a href="#_3-1torch-optim-lr-scheduler-lambdalr" class="header-anchor">#</a> 3.1torch.optim.lr_scheduler.LambdaLR</h3> <blockquote><p>class torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda, last_epoch=-1)</p></blockquote> <p>学习率的更新公式为：  $\text { new_l } r=\lambda \times \text { initial_l } r$\text { new_l } r=\lambda \times \text { initial_l } r</p> <p>$\text { new_l } r$\text { new_l } r 是得到的新的学习率，  $\text { initial_l } r$\text { initial_l } r 是初始的学习率，λ是通过参数lr_lambda和epoch得到的。</p> <ul><li>optimizer （Optimizer）：要更改学习率的优化器；</li> <li>lr_lambda（function or list）：根据epoch计算λ的函数；或者是一个list的这样的function，分别计算各个parameter groups的学习率更新用到的λ；</li> <li>last_epoch （int）：最后一个epoch的index，如果是训练了很多个epoch后中断了，继续训练，这个值就等于加载的模型的epoch。默认为-1表示从头开始训练，即从epoch=1开始。</li></ul> <div class="language- line-numbers-mode"><pre class="language-text"><code>import torch
+import torch.nn as nn
+from torch.optim.lr_scheduler import LambdaLR
+
+initial_lr = 0.1
+net_1 = model()
+
+optimizer_1 = torch.optim.Adam(net_1.parameters(), lr = initial_lr)
+scheduler_1 = LambdaLR(optimizer_1, lr_lambda=lambda epoch: 1/(epoch+1))
+
+print(&quot;初始化的学习率：&quot;, optimizer_1.defaults['lr'])
+
+for epoch in range(1, 11):
+    # train
+    optimizer_1.zero_grad()
+    optimizer_1.step()
+    print(&quot;第%d个epoch的学习率：%f&quot; % (epoch, optimizer_1.param_groups[0]['lr']))
+    scheduler_1.step()
+
+初始化的学习率： 0.1
+第1个epoch的学习率：0.100000
+第2个epoch的学习率：0.050000
+第3个epoch的学习率：0.033333
+第4个epoch的学习率：0.025000
+第5个epoch的学习率：0.020000
+第6个epoch的学习率：0.016667
+第7个epoch的学习率：0.014286
+第8个epoch的学习率：0.012500
+第9个epoch的学习率：0.011111
+第10个epoch的学习率：0.010000
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br></div></div><h3 id="_3-2-torch-optim-lr-scheduler-steplr"><a href="#_3-2-torch-optim-lr-scheduler-steplr" class="header-anchor">#</a> 3.2 torch.optim.lr_scheduler.StepLR</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>class torch.optim.lr_scheduler.StepLR(optimizer, step_size, gamma=0.1, last_epoch=-1)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>学习率的更新公式为：  $\text { new_l } r=\text { initial_l } r \times \gamma^{\text {epoch } / / \text { step_size }}$ \text { new_l } r=\text { initial_l } r \times \gamma^{\text {epoch } / / \text { step_size }}</p> <p>参数：</p> <ul><li>optimizer （Optimizer）：要更改学习率的优化器；</li> <li>step_size（int）：每训练step_size个epoch，更新一次参数；</li> <li>gamma（float）：更新lr的乘法因子；</li> <li>last_epoch （int）：最后一个epoch的index，如果是训练了很多个epoch后中断了，继续训练，这个值就等于加载的模型的epoch。默认为-1表示从头开始训练，即从epoch=1开始。</li></ul> <div class="language- line-numbers-mode"><pre class="language-text"><code>import torch
+import torch.nn as nn
+from torch.optim.lr_scheduler import StepLR
+
+initial_lr = 0.1
+net_1 = model()
+
+optimizer_1 = torch.optim.Adam(net_1.parameters(), lr = initial_lr)
+scheduler_1 = StepLR(optimizer_1, step_size=3, gamma=0.1)
+
+print(&quot;初始化的学习率：&quot;, optimizer_1.defaults['lr'])
+
+for epoch in range(1, 11):
+    # train
+    optimizer_1.zero_grad()
+    optimizer_1.step()
+    print(&quot;第%d个epoch的学习率：%f&quot; % (epoch, optimizer_1.param_groups[0]['lr']))
+    scheduler_1.step()
+
+初始化的学习率： 0.1
+第1个epoch的学习率：0.100000
+第2个epoch的学习率：0.100000
+第3个epoch的学习率：0.100000
+第4个epoch的学习率：0.010000
+第5个epoch的学习率：0.010000
+第6个epoch的学习率：0.010000
+第7个epoch的学习率：0.001000
+第8个epoch的学习率：0.001000
+第9个epoch的学习率：0.001000
+第10个epoch的学习率：0.000100
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br></div></div><h3 id="_3-3-torch-optim-lr-scheduler-multisteplr"><a href="#_3-3-torch-optim-lr-scheduler-multisteplr" class="header-anchor">#</a> 3.3 torch.optim.lr_scheduler.MultiStepLR</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>class torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones, gamma=0.1, last_epoch=-1)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>学习率的更新公式为： $n e w_{-l} r=\text { initial_lr } \times \gamma^{\text {bisect_right }(\text { milestones,epoch })}$n e w_{-l} r=\text { initial_lr } \times \gamma^{\text {bisect_right }(\text { milestones,epoch })}</p> <p>参数：</p> <ul><li>optimizer （Optimizer）：要更改学习率的优化器；</li> <li>milestones（list）：递增的list，存放要更新lr的epoch；</li> <li>gamma（float）：更新lr的乘法因子；</li> <li>last_epoch （int）：最后一个epoch的index，如果是训练了很多个epoch后中断了，继续训练，这个值就等于加载的模型的epoch。默认为-1表示从头开始训练，即从epoch=1开始。</li></ul> <div class="language- line-numbers-mode"><pre class="language-text"><code>import torch
+import torch.nn as nn
+from torch.optim.lr_scheduler import MultiStepLR
+
+initial_lr = 0.1
+net_1 = model()
+
+optimizer_1 = torch.optim.Adam(net_1.parameters(), lr = initial_lr)
+scheduler_1 = MultiStepLR(optimizer_1, milestones=[3, 7], gamma=0.1)
+
+print(&quot;初始化的学习率：&quot;, optimizer_1.defaults['lr'])
+
+for epoch in range(1, 11):
+    # train
+    optimizer_1.zero_grad()
+    optimizer_1.step()
+    print(&quot;第%d个epoch的学习率：%f&quot; % (epoch, optimizer_1.param_groups[0]['lr']))
+    scheduler_1.step()
+
+初始化的学习率： 0.1
+第1个epoch的学习率：0.100000
+第2个epoch的学习率：0.100000
+第3个epoch的学习率：0.100000
+第4个epoch的学习率：0.010000
+第5个epoch的学习率：0.010000
+第6个epoch的学习率：0.010000
+第7个epoch的学习率：0.010000
+第8个epoch的学习率：0.001000
+第9个epoch的学习率：0.001000
+第10个epoch的学习率：0.001000
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br></div></div><h3 id="_3-4-torch-optim-lr-scheduler-exponentiallr"><a href="#_3-4-torch-optim-lr-scheduler-exponentiallr" class="header-anchor">#</a> 3.4 torch.optim.lr_scheduler.ExponentialLR</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>class torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma, last_epoch=-1)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>学习率的更新公式为： $n e w_{-l} r=\text { initial_l } r \times \gamma^{\text {epoch }}$ n e w_{-l} r=\text { initial_l } r \times \gamma^{\text {epoch }}</p> <p>参数：</p> <ul><li>optimizer （Optimizer）：要更改学习率的优化器；</li> <li>gamma（float）：更新lr的乘法因子；</li> <li>last_epoch （int）：最后一个epoch的index，如果是训练了很多个epoch后中断了，继续训练，这个值就等于加载的模型的epoch。默认为-1表示从头开始训练，即从epoch=1开始。</li></ul> <div class="language- line-numbers-mode"><pre class="language-text"><code>import torch
+import torch.nn as nn
+from torch.optim.lr_scheduler import ExponentialLR
+
+initial_lr = 0.1
+net_1 = model()
+
+optimizer_1 = torch.optim.Adam(net_1.parameters(), lr = initial_lr)
+scheduler_1 = ExponentialLR(optimizer_1, gamma=0.1)
+
+print(&quot;初始化的学习率：&quot;, optimizer_1.defaults['lr'])
+
+for epoch in range(1, 11):
+    # train
+    optimizer_1.zero_grad()
+    optimizer_1.step()
+    print(&quot;第%d个epoch的学习率：%f&quot; % (epoch, optimizer_1.param_groups[0]['lr']))
+    scheduler_1.step()
+
+初始化的学习率： 0.1
+第1个epoch的学习率：0.100000
+第2个epoch的学习率：0.010000
+第3个epoch的学习率：0.001000
+第4个epoch的学习率：0.000100
+第5个epoch的学习率：0.000010
+第6个epoch的学习率：0.000001
+第7个epoch的学习率：0.000000
+第8个epoch的学习率：0.000000
+第9个epoch的学习率：0.000000
+第10个epoch的学习率：0.000000
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br></div></div><p>参考资料：</p> <p>1.<a href="https://zhuanlan.zhihu.com/p/344294796" target="_blank" rel="noopener noreferrer">训练时的学习率调整：optimizer和scheduler<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></p></div></div>  <div class="page-edit"><div class="edit-link"><a href="https://github.com/my-monster/blog/edit/master/docs/01.学术搬砖/02.pytorch学习/01.训练时的学习率调整：optimizer和scheduler - 知乎.md" target="_blank" rel="noopener noreferrer">编辑</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <!----> <div class="last-updated"><span class="prefix">上次更新:</span> <span class="time">2023/03/13, 14:43:19</span></div></div> <div class="page-nav-wapper"><div class="page-nav-centre-wrap"><a href="/pages/cf75c3/" class="page-nav-centre page-nav-centre-prev"><div class="tooltip">深度学习在图像去噪方面最近有哪些进展，与传统方法相比效果如何？</div></a> <a href="/pages/6d6261/" class="page-nav-centre page-nav-centre-next"><div class="tooltip">torch.optim.lr_scheduler.MultiStepLR()用法研究 台阶_阶梯学习率</div></a></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/pages/cf75c3/" class="prev">深度学习在图像去噪方面最近有哪些进展，与传统方法相比效果如何？</a></span> <span class="next"><a href="/pages/6d6261/">torch.optim.lr_scheduler.MultiStepLR()用法研究 台阶_阶梯学习率</a>→
+      </span></p></div></div></div> <div class="article-list"><div class="article-title"><a href="/archives/" class="iconfont icon-bi">最近更新</a></div> <div class="article-wrapper"><dl><dd>01</dd> <dt><a href="/pages/e0fcae/"><div>
+            为什么深度学习去噪都采用高斯白噪声？
+            <!----></div></a> <span class="date">03-13</span></dt></dl><dl><dd>02</dd> <dt><a href="/pages/cf75c3/"><div>
+            深度学习在图像去噪方面最近有哪些进展，与传统方法相比效果如何？
+            <!----></div></a> <span class="date">03-13</span></dt></dl><dl><dd>03</dd> <dt><a href="/pages/6d6261/"><div>
+            torch.optim.lrscheduler.MultiStepLR()用法研究 台阶阶梯学习率
+            <!----></div></a> <span class="date">03-13</span></dt></dl> <dl><dd></dd> <dt><a href="/archives/" class="more">更多文章&gt;</a></dt></dl></div></div></main></div> <div class="footer"><div class="icons"><a href="mailto:1335844747@qq.com" title="发邮件" target="_blank" class="iconfont icon-youjian"></a><a href="https://github.com/my-monster" title="GitHub" target="_blank" class="iconfont icon-github"></a><a href="https://music.163.com/#/playlist?id=463807063" title="听音乐" target="_blank" class="iconfont icon-erji"></a></div> 
+  Theme by
+  <a href="https://github.com/xugaoyi/vuepress-theme-vdoing" target="_blank" title="本站主题">Vdoing</a> 
+    | Copyright © 2022-2023
+    <span>Evan Xu | <a href="https://github.com/my-monster" target="_blank">MIT License</a></span></div> <div class="buttons"><div title="返回顶部" class="button blur go-to-top iconfont icon-fanhuidingbu" style="display:none;"></div> <div title="去评论" class="button blur go-to-comment iconfont icon-pinglun" style="display:none;"></div> <div title="主题模式" class="button blur theme-mode-but iconfont icon-zhuti"><ul class="select-box" style="display:none;"><li class="iconfont icon-zidong">
+          跟随系统
+        </li><li class="iconfont icon-rijianmoshi">
+          浅色模式
+        </li><li class="iconfont icon-yejianmoshi">
+          深色模式
+        </li><li class="iconfont icon-yuedu">
+          阅读模式
+        </li></ul></div></div> <!----> <!----> <!----></div><div class="global-ui"><div></div></div></div>
+    <script src="/assets/js/app.50fadf31.js" defer></script><script src="/assets/js/2.47a03fa1.js" defer></script><script src="/assets/js/3.436c0527.js" defer></script><script src="/assets/js/12.8e6e4c4b.js" defer></script>
+  </body>
+</html>
